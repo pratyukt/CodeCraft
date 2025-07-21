@@ -43,11 +43,8 @@ const submissionsRoutes = require("./routes/submissions");
 const profileRoutes = require("./routes/profile");
 const chatRoutes = require("./routes/chat");
 
-// Apply API limiter to all /api/ endpoints except /api/auth/login
-app.use("/api/", (req, res, next) => {
-  if (req.originalUrl === "/api/auth/login") return next();
-  apiLimiter(req, res, next);
-});
+
+app.use("/api", authRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
@@ -72,17 +69,8 @@ if (process.env.NODE_ENV !== "production") {
   };
 }
 
-// API Routes - Attach login limiter only to login endpoint
-app.use(
-  "/api/auth",
-  (req, res, next) => {
-    if (req.path === "/login" && req.method === "POST") {
-      return loginLimiter(req, res, next);
-    }
-    next();
-  },
-  authRoutes
-);
+
+app.use("/api/auth", authRoutes);
 app.use("/auth", googleAuthRoutes);
 app.use("/api/problems", problemsRoutes);
 app.use("/api/submissions", submissionsRoutes);
